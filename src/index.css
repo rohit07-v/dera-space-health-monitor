@@ -1,0 +1,251 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --color-space-primary: #050816;
+  --color-space-secondary: #0B1224;
+  --color-space-card: #101B30;
+  --color-cyan-accent: #00E5FF;
+  --color-electric-blue: #438BFF;
+  --color-space-purple: #8B5CF6;
+  --color-space-success: #21D4A5;
+  --color-space-warning: #FFB547;
+  --color-space-critical: #FF5368;
+}
+
+@layer base {
+  html, body {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: clip;
+    margin: 0;
+    padding: 0;
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    transition: background-color 0.4s ease, color 0.4s ease;
+  }
+
+  html.dark, html:not(.light) {
+    background-color: #020713;
+    color: #F1F5F9;
+  }
+
+  html.light {
+    background-color: #f1f5f9;
+    color: #0f172a;
+  }
+
+  #root {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: clip;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 1;
+  }
+  code, kbd, samp, pre, .font-mono {
+    font-family: 'JetBrains Mono', monospace;
+  }
+}
+
+/* ===============================================================
+   LIGHT MODE FLIGHT-DECK STYLING OVERRIDES
+   =============================================================== */
+html.light {
+  color-scheme: light;
+}
+
+html.light body {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+/* Translucent Frosted Glass & Surface cards in Light Mode */
+html.light [class*="bg-[#050816]"] {
+  background-color: rgba(248, 250, 252, 0.88) !important;
+  color: #0f172a;
+}
+
+html.light [class*="bg-[#0B1224]"] {
+  background-color: rgba(255, 255, 255, 0.90) !important;
+  color: #0f172a;
+}
+
+html.light [class*="bg-[#101B30]"] {
+  background-color: rgba(255, 255, 255, 0.93) !important;
+  color: #0f172a;
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.08);
+}
+
+html.light [class*="bg-[#091122]"],
+html.light [class*="bg-[#030612]"] {
+  background-color: rgba(241, 245, 249, 0.96) !important;
+  color: #0f172a;
+}
+
+/* Borders in Light Mode */
+html.light [class*="border-slate-800"] {
+  border-color: rgba(203, 213, 225, 0.85) !important;
+}
+
+html.light [class*="border-slate-700"] {
+  border-color: rgba(148, 163, 184, 0.7) !important;
+}
+
+html.light [class*="border-white/10"],
+html.light [class*="border-white/5"] {
+  border-color: rgba(15, 23, 42, 0.12) !important;
+}
+
+/* Text in Light Mode */
+html.light h1.text-white,
+html.light h2.text-white,
+html.light h3.text-white,
+html.light h4.text-white,
+html.light span.text-white {
+  color: #0f172a !important;
+}
+
+html.light .text-slate-100 {
+  color: #0f172a !important;
+}
+
+html.light .text-slate-200,
+html.light .text-slate-300 {
+  color: #1e293b !important;
+}
+
+html.light .text-slate-400 {
+  color: #475569 !important;
+}
+
+html.light .text-slate-500 {
+  color: #64748b !important;
+}
+
+/* Keep cyan, amber, emerald highlights crisp & readable */
+html.light .text-cyan-400,
+html.light [class*="text-[#00E5FF]"] {
+  color: #0284c7 !important;
+}
+
+html.light [class*="border-[#00E5FF]"] {
+  border-color: rgba(2, 132, 199, 0.35) !important;
+}
+
+/* Glass Panels in Light Mode */
+html.light .glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(2, 132, 199, 0.22);
+  color: #0f172a;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.06);
+}
+
+html.light .glass-panel-glow {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(2, 132, 199, 0.35);
+  box-shadow: 0 0 25px -5px rgba(2, 132, 199, 0.15);
+}
+
+/* Scrollbar in Light Mode */
+html.light ::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+html.light ::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border: 1px solid rgba(2, 132, 199, 0.3);
+}
+html.light ::-webkit-scrollbar-thumb:hover {
+  background: #0284c7;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Aerospace Glassmorphism & Atmospheric Lighting */
+.glass-panel {
+  background: rgba(16, 27, 48, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 229, 255, 0.15);
+}
+
+.glass-panel-glow {
+  background: rgba(16, 27, 48, 0.85);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(0, 229, 255, 0.28);
+  box-shadow: 0 0 25px -5px rgba(0, 229, 255, 0.08);
+}
+
+.glass-panel-hover {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.glass-panel-hover:hover {
+  border-color: rgba(0, 229, 255, 0.4);
+  box-shadow: 0 0 30px -5px rgba(0, 229, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+/* Subtle Space Grid and Star Texture Background */
+.space-stars-bg {
+  background-color: #050816;
+  background-image: 
+    radial-gradient(1.5px 1.5px at 20px 30px, #ffffff33, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 40px 70px, #00E5FF44, rgba(0,0,0,0)),
+    radial-gradient(1.5px 1.5px at 90px 40px, #438BFF33, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 160px 120px, #ffffff44, rgba(0,0,0,0)),
+    radial-gradient(1.5px 1.5px at 230px 190px, #8B5CF633, rgba(0,0,0,0)),
+    radial-gradient(1px 1px at 290px 80px, #ffffff22, rgba(0,0,0,0));
+  background-repeat: repeat;
+  background-size: 350px 350px;
+}
+
+/* Custom aerospace telemetry scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: #050816;
+}
+::-webkit-scrollbar-thumb {
+  background: #101B30;
+  border: 1px solid rgba(0, 229, 255, 0.2);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #00E5FF;
+}
+
+@keyframes pulse-cyan {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(0, 229, 255, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(0, 229, 255, 0);
+  }
+}
+
+.radar-sweep {
+  background: conic-gradient(from 0deg, transparent 0deg, rgba(0, 229, 255, 0.15) 60deg, transparent 90deg);
+}
+
+/* Clean print styles for health report PDF generation */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #0f172a !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+}

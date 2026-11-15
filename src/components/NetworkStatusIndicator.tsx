@@ -1,0 +1,139 @@
+import React, { useState, useEffect } from 'react';
+import { offlineSyncService } from '../services/offlineSyncService';
+import { Wifi, WifiOff, RefreshCw, Database, CloudUpload, AlertCircle, RotateCcw } from 'lucide-react';
+
+interface NetworkStatusIndicatorProps {
+  onOpenVault?: () => void;
+}
+
+export const NetworkStatusIndicator: React.FC<NetworkStatusIndicatorProps> = ({ onOpenVault }) => {
+  const [syncState, setSyncState] = useState(offlineSyncService.getState());
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  useEffect(() => {
+    const unsubscribe = offlineSyncService.subscribe((state) => {
+      setSyncState(state);
+    });
+    return unsubscribe;
+  }, []);
+
+  const handleManualSync = async () => {
+    setIsSyncing(true);
+    await offlineSyncService.startBackgroundSync();
+    setIsSyncing(false);
+  };
+
+  const handleRetryFailed = () => {
+    offlineSyncService.retryAllFailed();
+  };
+
+  const getBadgeConfig = () => {
+    switch (syncState.status) {
+      case 'LIVE':
+        return {
+          icon: <Wifi className="w-3.5 h-3.5 text-[#21D4A5]" />,
+          dotColor: 'bg-[#21D4A5]',
+          label: 'DSN LINK: LIVE',
+          colorClass: 'text-[#21D4A5] bg-[#21D4A5]/10 border-[#21D4A5]/30',
+          description: 'Telemetry synchronizing directly with Deep Space Network',
+        };
+      case 'CACHED':
+        return {
+          icon: <Database className="w-3.5 h-3.5 text-[#38bdf8]" />,
+          dotColor: 'bg-[#38bdf8]',
+          label: 'CACHED (OFFLINE)',
+          colorClass: 'text-[#38bdf8] bg-[#38bdf8]/10 border-[#38bdf8]/30',
+          description: 'No telemetry link. Displaying verified local cache.',
+        };
+      case 'PENDING_SYNC':
+        return {
+          icon: <CloudUpload className="w-3.5 h-3.5 text-[#FFB547]" />,
+          dotColor: 'bg-[#FFB547] animate-pulse',
+          label: `${syncState.pendingCount} QUEUED OFFLINE`,
+          colorClass: 'text-[#FFB547] bg-[#FFB547]/10 border-[#FFB547]/30',
+          description: `${syncState.pendingCount} local records queued to sync upon link recovery`,
+        };
+      case 'SYNCING':
+        return {
+          icon: <RefreshCw className="w-3.5 h-3.5 text-[#00E5FF] animate-spin" />,
+          dotColor: 'bg-[#00E5FF]',
+          label: 'SYNCHRONIZING...',
+          colorClass: 'text-[#00E5FF] bg-[#00E5FF]/10 border-[#00E5FF]/30',
+          description: 'Flushing local measurements to station telemetry store',
+        };
+      case 'SYNC_FAILED':
+        return {
+          icon: <AlertCircle className="w-3.5 h-3.5 text-[#FF5368]" />,
+          dotColor: 'bg-[#FF5368]',
+          label: syncState.nextRetryDelayMs
+            ? `RETRY IN ${Math.ceil(syncState.nextRetryDelayMs / 1000)}s (#${syncState.consecutiveFailures})`
+            : 'SYNC INTERRUPTED',
+          colorClass: 'text-[#FF5368] bg-[#FF5368]/10 border-[#FF5368]/30',
+          description: 'Telemetry upload encountered an interruption. Exponential backoff active.',
+        };
+      case 'STALE':
+        return {
+          icon: <Database className="w-3.5 h-3.5 text-amber-400" />,
+          dotColor: 'bg-amber-400',
+          label: 'DATA STALE (>24H)',
+          colorClass: 'text-amber-400 bg-amber-400/10 border-amber-400/30',
+          description: 'Telemetry stream is over 24 hours old. Refresh needed.',
+        };
+      default:
+        return {
+          icon: <WifiOff className="w-3.5 h-3.5 text-slate-400" />,
+          dotColor: 'bg-slate-400',
+          label: 'OFFLINE',
+          colorClass: 'text-slate-400 bg-slate-800 border-slate-700',
+          description: 'Network link down',
+        };
+    }
+  };
+
+  const badge = getBadgeConfig();
+
+  return (
+    <div className="flex items-center gap-1 sm:gap-2 font-mono text-xs shrink-0">
+      <div
+        onClick={onOpenVault}
+        className={`flex items-center gap-1.5 sm:gap-2 px-2 sm:px-2.5 py-1 rounded-full border ${badge.colorClass} shadow-sm transition-all ${
+          onOpenVault ? 'cursor-pointer hover:brightness-110 active:scale-95' : ''
+        }`}
+        title={`${badge.description}${onOpenVault ? ' · Click to open Cryptographic Disaster Recovery Vault' : ''}`}
+      >
+        <span className={`w-1.5 h-1.5 rounded-full ${badge.dotColor} shrink-0`} />
+        {badge.icon}
+        <span className="font-bold text-[9px] sm:text-[10px] tracking-wider uppercase hidden md:inline whitespace-nowrap">{badge.label}</span>
+        <span className="font-bold text-[8px] tracking-wider uppercase md:hidden whitespace-nowrap">{badge.label.replace('DSN LINK: ', '').replace(' (OFFLINE)', '')}</span>
+      </div>
+
+      {syncState.pendingCount > 0 && (
+        <button
+          onClick={handleManualSync}
+          disabled={isSyncing}
+          className="p-1 rounded bg-[#101B30] hover:bg-slate-800 border border-slate-700 text-slate-300 hover:text-[#00E5FF] transition-colors cursor-pointer"
+          title="Force Sync Offline Queue"
+        >
+          <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin text-[#00E5FF]' : ''}`} />
+        </button>
+      )}
+
+      {syncState.failedCount > 0 && (
+        <button
+          onClick={handleRetryFailed}
+          className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-red-950/40 hover:bg-red-900/60 border border-red-500/30 text-red-300 hover:text-white transition-colors cursor-pointer text-[10px]"
+          title="Reset backoff and retry all failed items"
+        >
+          <RotateCcw className="w-3 h-3 text-red-400" />
+          <span>{syncState.failedCount} Failed</span>
+        </button>
+      )}
+
+      {syncState.lastSync && (
+        <span className="text-[10px] text-slate-500 hidden xl:inline">
+          Sync: {new Date(syncState.lastSync).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} UTC
+        </span>
+      )}
+    </div>
+  );
+};

@@ -1,0 +1,13 @@
+node_modules/
+build/
+dist/
+dist-server/
+coverage/
+__pycache__/
+.venv/
+venv/
+.DS_Store
+*.log
+.env*
+!.env.example
+data/space_health_db*.json
